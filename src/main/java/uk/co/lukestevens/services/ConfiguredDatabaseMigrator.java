@@ -122,7 +122,9 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 		if(changes == null) {
 			changes = new ArrayList<>();
 			for(File file : path.toFile().listFiles()) {
-				changes.add(parser.parse(file));
+				if(file.getName().endsWith(".sql")) {
+					changes.add(parser.parse(file));
+				}
 			}
 		}
 		return changes;
