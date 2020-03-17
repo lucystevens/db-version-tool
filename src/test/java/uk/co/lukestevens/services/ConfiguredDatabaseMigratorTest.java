@@ -76,7 +76,7 @@ public class ConfiguredDatabaseMigratorTest {
 	
 	@Test
 	public void testGetCurrentDatabaseVersionChanged() throws SQLException {
-		db.update("UPDATE version SET version = ?", 73);
+		db.update("UPDATE version.version SET version = ?", 73);
 		
 		ConfiguredDatabaseMigrator migrator = new ConfiguredDatabaseMigrator(null, null, db);
 		int version = migrator.getCurrentDatabaseVersion();
@@ -131,7 +131,7 @@ public class ConfiguredDatabaseMigratorTest {
 			"INSERT INTO test VALUES('value2', DEFAULT);" +
 			"UPDATE test SET intcol = 18 WHERE col = 'value';"
 		);
-		db.update("UPDATE version SET version = ?", 80);
+		db.update("UPDATE version.version SET version = ?", 80);
 		
 		ConfiguredDatabaseMigrator migrator = new ConfiguredDatabaseMigrator(null, null, db);
 		this.setChanges(migrator, 

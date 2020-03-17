@@ -1,5 +1,7 @@
-DROP TABLE IF EXISTS version;
+CREATE SCHEMA IF NOT EXISTS version;
+
+DROP TABLE IF EXISTS version.version;
 DROP TABLE IF EXISTS test;
 
-CREATE TABLE version(version INT PRIMARY KEY);
-INSERT INTO version VALUES(0);
+CREATE TABLE version.version(version INT PRIMARY KEY);
+INSERT INTO version.version VALUES(0);

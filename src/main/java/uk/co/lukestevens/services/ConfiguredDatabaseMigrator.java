@@ -17,6 +17,9 @@ import uk.co.lukestevens.jdbc.result.DatabaseResult;
 
 public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	
+	private final String databaseName="version.version";;
+	private final String columnName="version";
+	
 	private final Path path;
 	private final FileParser<DatabaseSchemaChange> parser;
 	private final Database db;
@@ -57,7 +60,7 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	void deploy(DatabaseSchemaChange dsb) {
 		try {
 			db.update(dsb.getDeploySql());
-			db.update("UPDATE version SET version = ?", dsb.getVersion());
+			db.update("UPDATE " + databaseName +" SET " + columnName + " = ?", dsb.getVersion());
 		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}
@@ -74,7 +77,7 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	void rollback(DatabaseSchemaChange dsb) {
 		try {
 			db.update(dsb.getRollbackSql());
-			db.update("UPDATE version SET version = ?", dsb.getVersion()-1);
+			db.update("UPDATE " + databaseName +" SET " + columnName + " = ?", dsb.getVersion()-1);
 		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}
@@ -82,7 +85,8 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	
 	@Override
 	public int getCurrentDatabaseVersion() {
-		try(DatabaseResult dbr = db.query("SELECT version FROM version;")){
+		this.setupDatabase();
+		try(DatabaseResult dbr = db.query("SELECT " + columnName + " FROM " + databaseName + ";")){
 			ResultSet rs = dbr.getResultSet();
 			if(rs.next()) {
 				return rs.getInt("version");
@@ -91,6 +95,16 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 				throw new DatabaseChangeException("No version information available in database");
 			}
 		} catch (IOException | SQLException e) {
+			throw new DatabaseChangeException(e);
+		}
+	}
+	
+	void setupDatabase() {
+		try {
+			db.update("create schema if not exists version; " + 
+					"CREATE TABLE if not exists version.version(version INT PRIMARY KEY); " + 
+					"INSERT INTO version.version(version) SELECT 0 WHERE NOT EXISTS (SELECT * FROM version.version);");
+		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}
 	}
