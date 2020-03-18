@@ -24,6 +24,7 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	private final FileParser<DatabaseSchemaChange> parser;
 	private final Database db;
 	
+	Integer currentVersion = null;
 	private List<DatabaseSchemaChange> changes;
 	
 	public ConfiguredDatabaseMigrator(Path path, FileParser<DatabaseSchemaChange> parser, Database db) {
@@ -38,10 +39,10 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 			return;
 		}
 		else if(version > currentVersion) {
-			this.deploy(version);
+			this.deploy(version, currentVersion);
 		}
 		else {
-			this.rollback(version);
+			this.rollback(version, currentVersion);
 		}
 	}
 	
@@ -49,11 +50,11 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 		this.migrate(this.getLatestChangeVersion());
 	}
 	
-	void deploy(final int version) {
+	void deploy(final int version, final int currentVersion) {
 		this.getChanges()
 		    .stream()
 		    .sorted(SchemeChangeComparators.VERSION_ASC)
-		    .filter(dsb -> dsb.getVersion() <= version)
+		    .filter(dsb -> dsb.getVersion() <= version && dsb.getVersion() > currentVersion)
 		    .forEachOrdered(this::deploy);
 	}
 	
@@ -66,11 +67,11 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 		}
 	}
 	
-	void rollback(final int version) {
+	void rollback(final int version, final int currentVersion) {
 		this.getChanges()
 	    .stream()
 	    .sorted(SchemeChangeComparators.VERSION_DESC)
-	    .filter(dsb -> dsb.getVersion() > version)
+	    .filter(dsb -> dsb.getVersion() > version && dsb.getVersion() <= currentVersion)
 	    .forEachOrdered(this::rollback);
 	}
 	

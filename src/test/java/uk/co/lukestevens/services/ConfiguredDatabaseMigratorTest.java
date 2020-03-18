@@ -107,7 +107,7 @@ public class ConfiguredDatabaseMigratorTest {
 			new DatabaseSchemaChange(80, "UPDATE test SET intcol = 18 WHERE col = 'value1';", "UPDATE test SET intcol = 13 WHERE col = 'value1';")
 		);
 		
-		migrator.deploy(77);
+		migrator.deploy(77, 0);
 		int version = migrator.getCurrentDatabaseVersion();
 		assertEquals(77, version);
 		
@@ -142,7 +142,7 @@ public class ConfiguredDatabaseMigratorTest {
 			new DatabaseSchemaChange(80, "UPDATE test SET intcol = 18 WHERE col = 'value1';", "UPDATE test SET intcol = 13 WHERE col = 'value1';")
 		);
 		
-		migrator.rollback(60);
+		migrator.rollback(60, 80);
 		int version = migrator.getCurrentDatabaseVersion();
 		assertEquals(70, version);
 		

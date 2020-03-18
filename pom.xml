@@ -15,6 +15,23 @@
 	</properties>
 
 	<build>
+	
+			<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>conf/application.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>conf/application.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
 
 		<plugins>
 
@@ -51,7 +68,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>uk.co.lukestevens.DBSchemaMain</mainClass>
+							<mainClass>uk.co.lukestevens.DBVersionToolMain</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
@@ -67,32 +84,28 @@
 
 	<dependencies>
 
-				<dependency>
+		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>base-lib</artifactId>
 			<version>1.0.0-beta</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>db-lib</artifactId>
 			<version>1.0.0-beta</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>config-lib</artifactId>
 			<version>1.0.0-beta</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>cli-lib</artifactId>
 			<version>1.0.0-beta</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

@@ -24,14 +24,17 @@ public class DBVersionToolMain {
 		EncryptionService encryption = new AESEncryptionService(setup.getKey());
 		ConfigManager configManager = new ConfigManager(setup.getConfigFile(), encryption);
 		Config config = configManager.getAppConfig();
+		
+		System.out.println("Running " + config.getAsString("application.name") + ". Version: " + config.getAsString("application.version"));
 
-		Database db = new ConfiguredDatabase(config, "migrate");
+		String alias = config.getAsStringOrDefault("migration.db.alias", "migration");
+		Database db = new ConfiguredDatabase(config, alias);
 		FileParser<DatabaseSchemaChange> fileParser = new SchemaChangeParser();
 		
 		DatabaseMigrator migrator = new ConfiguredDatabaseMigrator(setup.getDirectory().toPath(), fileParser, db);
 		
 		try {
-			if(setup.versionSpecified()) {
+			if(!setup.versionSpecified()) {
 				migrator.migrate();
 			}
 			else {
