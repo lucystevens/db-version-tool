@@ -17,7 +17,7 @@ import uk.co.lukestevens.jdbc.result.DatabaseResult;
 
 public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	
-	private final String databaseName="version.version";;
+	private final String databaseName="core.version";;
 	private final String columnName="version";
 	
 	private final Path path;
@@ -101,9 +101,9 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 	
 	void setupDatabase() {
 		try {
-			db.update("create schema if not exists version; " + 
-					"CREATE TABLE if not exists version.version(version INT PRIMARY KEY); " + 
-					"INSERT INTO version.version(version) SELECT 0 WHERE NOT EXISTS (SELECT * FROM version.version);");
+			db.update("create schema if not exists core; " + 
+					"CREATE TABLE if not exists core.version(version INT PRIMARY KEY); " + 
+					"INSERT INTO core.version(version) SELECT 0 WHERE NOT EXISTS (SELECT * FROM core.version);");
 		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}

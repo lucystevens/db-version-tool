@@ -1,7 +1,7 @@
-CREATE SCHEMA IF NOT EXISTS version;
+CREATE SCHEMA IF NOT EXISTS core;
 
-DROP TABLE IF EXISTS version.version;
+DROP TABLE IF EXISTS core.version;
 DROP TABLE IF EXISTS test;
 
-CREATE TABLE version.version(version INT PRIMARY KEY);
-INSERT INTO version.version VALUES(0);
+CREATE TABLE core.version(version INT PRIMARY KEY);
+INSERT INTO core.version VALUES(0);
