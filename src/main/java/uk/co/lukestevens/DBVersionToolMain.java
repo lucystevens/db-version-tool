@@ -25,7 +25,7 @@ public class DBVersionToolMain {
 		ConfigManager configManager = new ConfigManager(setup.getConfigFile(), encryption);
 		Config config = configManager.getAppConfig();
 		
-		System.out.println("Running " + config.getAsString("application.name") + ". Version: " + config.getAsString("application.version"));
+		System.out.println("Running " + config.getApplicationName() + ". Version: " + config.getApplicationVersion());
 
 		String alias = config.getAsStringOrDefault("migration.db.alias", "migration");
 		Database db = new ConfiguredDatabase(config, alias);
