@@ -20,6 +20,9 @@ public class DBVersionToolMain {
 	public static void main(String[] args) throws ParseException, IOException {
 		CLIParser parser = new CLIParser();
 		DBVersionToolSetup setup = parser.parseCommandLine(args, DBVersionToolSetup.class);
+		if(setup == null) {
+			System.exit(0);
+		}
 		
 		EncryptionService encryption = new AESEncryptionService(setup.getKey());
 		ConfigManager configManager = new ConfigManager(setup.getConfigFile(), encryption);
