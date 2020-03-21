@@ -4,19 +4,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.co.lukestevens</groupId>
 	<artifactId>db-version-tool</artifactId>
-	<version>1.0.0-beta</version>
+	<version>1.0.0</version>
 
 	<name>db-version-tool</name>
 	<description>Tool to enable versioning and changes to a database</description>
 
 	<properties>
-		<service.core.version>1.0.0-beta</service.core.version>
+		<lukestevens.lib.version>1.0.0</lukestevens.lib.version>
 		<junit.jupiter.version>5.5.2</junit.jupiter.version>
 	</properties>
 
 	<build>
-	
-			<resources>
+
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
@@ -87,31 +87,31 @@
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>base-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>db-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>config-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>cli-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>base-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>uk.co.lukestevens</groupId>
 			<artifactId>db-lib</artifactId>
-			<version>1.0.0-beta</version>
+			<version>${lukestevens.lib.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -143,8 +143,8 @@
 			<version>${junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-				<!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+
+		<!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
