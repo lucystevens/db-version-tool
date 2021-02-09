@@ -4,44 +4,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.co.lukestevens.DatabaseSchemaChange;
 import uk.co.lukestevens.config.Config;
-import uk.co.lukestevens.config.ConfigManager;
-import uk.co.lukestevens.encryption.EncryptionService;
-import uk.co.lukestevens.encryption.IgnoredEncryptionService;
-import uk.co.lukestevens.jdbc.result.DatabaseResult;
+import uk.co.lukestevens.config.models.PropertiesConfig;
+import uk.co.lukestevens.db.DatabaseResult;
 import uk.co.lukestevens.services.ConfiguredDatabaseMigrator;
-import uk.co.lukestevens.test.db.TestDatabase;
+import uk.co.lukestevens.testing.db.TestDatabase;
 
 public class ConfiguredDatabaseMigratorTest {
 	
-	static Config config;
 	TestDatabase db;
-	
-	@BeforeAll
-	public static void loadConfig() throws IOException {
-		EncryptionService encryption = new IgnoredEncryptionService();
-		File configFile = new File("src/test/resources/conf/test.conf");
-		ConfigManager configManager = new ConfigManager(configFile, encryption);
-		config = configManager.getAppConfig();
-	}
+	Config config;
 	
 	@BeforeEach
 	public void setup() throws SQLException, IOException { 
 		db = new TestDatabase();
 		db.executeFile("setup");
+		
+		config = new PropertiesConfig(db.getProperties());
 	}
 	
 	@Test
@@ -198,17 +185,9 @@ public class ConfiguredDatabaseMigratorTest {
 	 * Helper method to set changes on the migrator and avoid using the filesystem
 	 */
 	void setChanges(ConfiguredDatabaseMigrator migrator, DatabaseSchemaChange...changesArr) {
-		List<DatabaseSchemaChange> changes = new ArrayList<>();
+		migrator.changes = new ArrayList<>();
 		for(DatabaseSchemaChange change : changesArr) {
-			changes.add(change);
-		}
-		
-		try {
-			Field f = ConfiguredDatabaseMigrator.class.getDeclaredField("changes");
-			f.setAccessible(true);
-			f.set(migrator, changes);
-		} catch (Exception e) {
-			e.printStackTrace();
+			migrator.changes.add(change);
 		}
 
 	}

@@ -25,7 +25,7 @@ public class SchemaChangeParser implements FileParser<DatabaseSchemaChange> {
 				buffer = new StringBuilder();
 			}
 			else if(!line.startsWith("//")){
-				buffer.append(line + " ");
+				buffer.append(line.trim());
 			}
 		}
 		rollbackSql = buffer.toString();
