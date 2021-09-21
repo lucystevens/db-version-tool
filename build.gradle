@@ -1,0 +1,109 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/lukecmstevens/packages")
+        credentials {
+            username = System.getenv("GH_USER")
+            password = System.getenv("GH_TOKEN")
+        }
+    }
+
+}
+
+dependencies {
+    compileOnly 'uk.co.lukestevens:base-lib:2.1.0'
+    compile 'uk.co.lukestevens:db-lib:2.0.0'
+    compile 'uk.co.lukestevens:config-lib:2.0.0'
+    compile 'uk.co.lukestevens:logging-lib:2.0.0'
+    compile 'uk.co.lukestevens:cli-lib:1.0.0'
+
+    compile 'org.postgresql:postgresql:42.2.6'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    testImplementation 'com.h2database:h2:1.4.199'
+}
+
+group = 'uk.co.lukestevens'
+description = 'db-version-tool'
+sourceCompatibility = '11'
+
+test {
+    useJUnitPlatform()
+}
+
+task fulljar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'uk.co.lukestevens.DBVersionToolMain'
+    }
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    archivesBaseName("DBVersionTool.jar")
+    with jar
+}
+
+task exportProperties {
+    doLast {
+        File githubEnv = new File(System.getenv("GITHUB_ENV"))
+        githubEnv.withWriterAppend { out ->
+            out.println "PROJECT_VERSION=$rootProject.version"
+            out.println "PROJECT_NAME=$rootProject.name"
+        }
+    }
+}
+
+static def setVersion(String newVersion) {
+    File properties = new File("gradle.properties")
+    properties.withWriter {
+        it.println "version=$newVersion"
+    }
+}
+
+static String removeSuffix(String version) {
+    int index = version.indexOf("-")
+    if(index > -1) {
+        version = version.substring(0, index)
+    }
+    return version
+}
+
+task finaliseVersion {
+    doLast {
+        String currentVersion = rootProject.version.toString()
+        String newVersion = removeSuffix(currentVersion)
+        if(currentVersion != newVersion) {
+            setVersion(newVersion)
+        }
+    }
+}
+
+task bumpVersion {
+    doLast {
+        String currentVersion = rootProject.version.toString()
+        String finalVersion = removeSuffix(currentVersion)
+        String[] versionParts = finalVersion.split("\\.")
+        if(versionParts.length < 2){
+            throw new IllegalArgumentException("Version must have at least major and minor identifier")
+        }
+
+        // Add major and minor versions
+        StringBuilder newVersion = new StringBuilder(versionParts[0])
+                .append(".")
+                .append(Integer.parseInt(versionParts[1]) + 1)
+        for(int i = 2; i < versionParts.length; i++){
+            newVersion.append(".0") // zero all other parts
+        }
+        newVersion.append("-beta")
+
+        setVersion(newVersion.toString())
+    }
+}

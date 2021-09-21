@@ -16,29 +16,23 @@ jobs:
     - name: Checkout current branch
       uses: actions/checkout@v2
 
-    - name: Set up JDK 1.8
+    - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        java-version: 11
 
     # Finalise the version by removing the -beta or -SNAPSHOT suffix if it exists
 
     - name: Finalise version
-      uses: lukecmstevens/actions/finalise-version@v1
+      run: ./gradlew finaliseVersion
 
-    # Build maven package (including running tests)
+    - name: Write project properties to env file
+      run: ./gradlew exportProperties
 
-    - name: Build with Maven
-      uses: lukecmstevens/actions/maven-task@v1
-      with:
-        task: package
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # Build gradle package (including running tests)
 
-    # Get maven properties and store in environment
-
-    - name: Get maven properties
-      uses: lukecmstevens/actions/get-mvn-properties@v1
+    - name: Build with gradle
+      run: ./gradlew clean test fulljar
 
     # We finalised the version earlier, now committing, tagging, and pushing to main
 
@@ -46,8 +40,8 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         branch: main
-        commit_message: Release version ${{ env.MVN_VERSION }}
-        tagging_message: ${{ env.MVN_VERSION }}
+        commit_message: Release version ${{ env.PROJECT_VERSION }}
+        tagging_message: ${{ env.PROJECT_VERSION }}
 
     # Create a release and upload the jar to it
 
@@ -57,8 +51,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.MVN_VERSION }}
-        release_name: Release ${{ env.MVN_VERSION }}
+        tag_name: ${{ env.PROJECT_VERSION }}
+        release_name: Release ${{ env.PROJECT_VERSION }}
         body_path: changelog.md
 
     - name: Upload Release Asset
@@ -69,7 +63,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/DBVersionTool.jar
-        asset_name: ${{ env.MVN_ARTIFACT }}-${{ env.MVN_VERSION }}.jar
+        asset_name: ${{ env.PROJECT_NAME }}-${{ env.PROJECT_VERSION }}.jar
         asset_content_type: application/java-archive
 
     # Switch to develop, bump version and commit
@@ -80,9 +74,7 @@ jobs:
         ref: develop
 
     - name: Bump version
-      uses: lukecmstevens/actions/bump-version@v1
-      with:
-       version-suffix: beta
+      run: ./gradlew bumpVersion
 
     - name: Commit and push bumped version
       uses: stefanzweifel/git-auto-commit-action@v4
