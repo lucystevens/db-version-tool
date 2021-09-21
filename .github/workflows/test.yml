@@ -7,6 +7,10 @@ on:
     branches:
     - develop
 
+env:
+  GH_USER: lukecmstevens
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build:
 
