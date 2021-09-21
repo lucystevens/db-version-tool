@@ -49,7 +49,7 @@ Please make sure to update tests as appropriate.
 ## License
 [MIT][mit-license]
 
-[workflow-badge-develop]: https://img.shields.io/github/workflow/status/lukecmstevens/db-version-lib/test/develop?label=develop
-[workflow-badge-main]: https://img.shields.io/github/workflow/status/lukecmstevens/db-version-lib/release/main?label=main
-[version-badge]: https://img.shields.io/github/v/release/lukecmstevens/db-version-lib
+[workflow-badge-develop]: https://img.shields.io/github/workflow/status/lukecmstevens/db-version-tool/test/develop?label=develop
+[workflow-badge-main]: https://img.shields.io/github/workflow/status/lukecmstevens/db-version-tool/release/main?label=main
+[version-badge]: https://img.shields.io/github/v/release/lukecmstevens/db-version-tool
 [mit-license]: https://choosealicense.com/licenses/mit/

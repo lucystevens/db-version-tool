@@ -16,14 +16,10 @@ jobs:
     - name: Checkout current branch
       uses: actions/checkout@v2
 
-    - name: Set up JDK 1.8
+    - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        java-version: 11
 
-    - name: Run maven tests
-      uses: lukecmstevens/actions/maven-task@v1
-      with:
-        task: test
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run gradle tests
+      run: ./gradlew clean test
