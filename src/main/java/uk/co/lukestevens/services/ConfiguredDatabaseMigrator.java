@@ -1,61 +1,25 @@
 package uk.co.lukestevens.services;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.co.lukestevens.DatabaseChangeException;
 import uk.co.lukestevens.DatabaseSchemaChange;
-import uk.co.lukestevens.interfaces.DatabaseMigrator;
+import uk.co.lukestevens.db.Database;
+import uk.co.lukestevens.db.DatabaseResult;
 import uk.co.lukestevens.interfaces.FileParser;
-import uk.co.lukestevens.jdbc.Database;
-import uk.co.lukestevens.jdbc.result.DatabaseResult;
 
-public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
+public class ConfiguredDatabaseMigrator extends AbstractDatabaseMigrator {
 	
-	private final String databaseName="core.version";;
+	private final String databaseName="core.version";
 	private final String columnName="version";
 	
-	private final Path path;
-	private final FileParser<DatabaseSchemaChange> parser;
 	private final Database db;
 	
-	Integer currentVersion = null;
-	private List<DatabaseSchemaChange> changes;
-	
 	public ConfiguredDatabaseMigrator(Path path, FileParser<DatabaseSchemaChange> parser, Database db) {
-		this.path = path;
-		this.parser = parser;
+		super(path, parser);
 		this.db = db;
-	}
-	
-	public void migrate(int version) {
-		int currentVersion = this.getCurrentDatabaseVersion();
-		if(version == currentVersion) {
-			return;
-		}
-		else if(version > currentVersion) {
-			this.deploy(version, currentVersion);
-		}
-		else {
-			this.rollback(version, currentVersion);
-		}
-	}
-	
-	public void migrate() {
-		this.migrate(this.getLatestChangeVersion());
-	}
-	
-	void deploy(final int version, final int currentVersion) {
-		this.getChanges()
-		    .stream()
-		    .sorted(SchemeChangeComparators.VERSION_ASC)
-		    .filter(dsb -> dsb.getVersion() <= version && dsb.getVersion() > currentVersion)
-		    .forEachOrdered(this::deploy);
 	}
 	
 	void deploy(DatabaseSchemaChange dsb) {
@@ -65,14 +29,6 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}
-	}
-	
-	void rollback(final int version, final int currentVersion) {
-		this.getChanges()
-	    .stream()
-	    .sorted(SchemeChangeComparators.VERSION_DESC)
-	    .filter(dsb -> dsb.getVersion() > version && dsb.getVersion() <= currentVersion)
-	    .forEachOrdered(this::rollback);
 	}
 	
 	void rollback(DatabaseSchemaChange dsb) {
@@ -108,27 +64,6 @@ public class ConfiguredDatabaseMigrator implements DatabaseMigrator {
 		} catch (SQLException e) {
 			throw new DatabaseChangeException(e);
 		}
-	}
-	
-	int getLatestChangeVersion() {
-		return getChanges()
-				.stream()
-				.sorted(SchemeChangeComparators.VERSION_DESC)
-				.map(DatabaseSchemaChange::getVersion)
-				.findFirst()
-				.orElse(0);
-	}
-	
-	List<DatabaseSchemaChange> getChanges(){
-		if(changes == null) {
-			changes = new ArrayList<>();
-			for(File file : path.toFile().listFiles()) {
-				if(file.getName().endsWith(".sql")) {
-					changes.add(parser.parse(file));
-				}
-			}
-		}
-		return changes;
 	}
 
 }

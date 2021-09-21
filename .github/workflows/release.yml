@@ -1,0 +1,89 @@
+# This workflow does all the tagging, building, publishing etc. around a new release
+
+name: release
+
+on:
+  push:
+    branches:
+    - main
+
+env:
+  GH_USER: lukecmstevens
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout current branch
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+
+    # Finalise the version by removing the -beta or -SNAPSHOT suffix if it exists
+
+    - name: Finalise version
+      run: ./gradlew finaliseVersion
+
+    - name: Write project properties to env file
+      run: ./gradlew exportProperties
+
+    # Build gradle package (including running tests)
+
+    - name: Build with gradle
+      run: ./gradlew clean test fulljar
+
+    # We finalised the version earlier, now committing, tagging, and pushing to main
+
+    - name: Commit and tag version update
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        branch: main
+        commit_message: Release version ${{ env.PROJECT_VERSION }}
+        tagging_message: ${{ env.PROJECT_VERSION }}
+
+    # Create a release and upload the jar to it
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.PROJECT_VERSION }}
+        release_name: Release ${{ env.PROJECT_VERSION }}
+        body_path: changelog.md
+
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./target/DBVersionTool.jar
+        asset_name: ${{ env.PROJECT_NAME }}-${{ env.PROJECT_VERSION }}.jar
+        asset_content_type: application/java-archive
+
+    # Switch to develop, bump version and commit
+
+    - name: Switch to develop
+      uses: actions/checkout@v2
+      with:
+        ref: develop
+
+    - name: Bump version
+      run: ./gradlew bumpVersion
+
+    - name: Commit and push bumped version
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        branch: develop
+        commit_message: Bump version
+
+        

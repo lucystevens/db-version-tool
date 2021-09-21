@@ -28,3 +28,15 @@ hs_err_pid*
 .settings/
 .project
 .classpath
+
+# backup pom
+pom.xml.versionsBackup
+
+# intellij files
+.idea
+*.iml
+
+# include gradle.jar
+!gradle/wrapper/gradle-wrapper.jar
+.gradle
+build

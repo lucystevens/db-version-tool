@@ -14,10 +14,6 @@ import uk.co.lukestevens.services.SchemaChangeParser;
 
 public class SchemaChangeParserTest {
 
-	public SchemaChangeParserTest() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Test
 	public void testGetVersionValid() {
 		SchemaChangeParser parser = new SchemaChangeParser();
@@ -64,8 +60,8 @@ public class SchemaChangeParserTest {
 		
 		DatabaseSchemaChange dsb = parser.parse(new File("001_CREATE_TABLE.sql"));
 		assertEquals(1, dsb.getVersion());
-		assertEquals("CREATE table ( id INTEGER PRIMARY KEY, value VARCHAR );  ", dsb.getDeploySql());
-		assertEquals("DROP TABLE IF EXISTS table; ", dsb.getRollbackSql());
+		assertEquals("CREATE table (id INTEGER PRIMARY KEY,value VARCHAR);", dsb.getDeploySql());
+		assertEquals("DROP TABLE IF EXISTS table;", dsb.getRollbackSql());
 	}
 	
 	@Test

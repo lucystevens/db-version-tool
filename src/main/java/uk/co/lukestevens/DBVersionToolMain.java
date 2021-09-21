@@ -5,14 +5,13 @@ import org.apache.commons.cli.ParseException;
 
 import uk.co.lukestevens.cli.CLIParser;
 import uk.co.lukestevens.config.Config;
-import uk.co.lukestevens.config.ConfigManager;
-import uk.co.lukestevens.encryption.AESEncryptionService;
-import uk.co.lukestevens.encryption.EncryptionService;
+import uk.co.lukestevens.config.models.EnvironmentConfig;
+import uk.co.lukestevens.db.Database;
 import uk.co.lukestevens.interfaces.DatabaseMigrator;
 import uk.co.lukestevens.interfaces.FileParser;
 import uk.co.lukestevens.jdbc.ConfiguredDatabase;
-import uk.co.lukestevens.jdbc.Database;
 import uk.co.lukestevens.services.ConfiguredDatabaseMigrator;
+import uk.co.lukestevens.services.DatabaseMigrationFileGenerator;
 import uk.co.lukestevens.services.SchemaChangeParser;
 
 public class DBVersionToolMain {
@@ -24,17 +23,20 @@ public class DBVersionToolMain {
 			System.exit(0);
 		}
 		
-		EncryptionService encryption = new AESEncryptionService(setup.getKey());
-		ConfigManager configManager = new ConfigManager(setup.getConfigFile(), encryption);
-		Config config = configManager.getAppConfig();
+		Config config = new EnvironmentConfig();
+		config.load();
 		
-		System.out.println("Running " + config.getApplicationName() + ". Version: " + config.getApplicationVersion());
+		System.out.println("Running db-version-tool. Version: 2.0.0");
 
-		String alias = config.getAsStringOrDefault("migration.db.alias", "migration");
-		Database db = new ConfiguredDatabase(config, alias);
 		FileParser<DatabaseSchemaChange> fileParser = new SchemaChangeParser();
-		
-		DatabaseMigrator migrator = new ConfiguredDatabaseMigrator(setup.getDirectory().toPath(), fileParser, db);
+		DatabaseMigrator migrator;
+		if(setup.generateFile()) {
+			migrator = new DatabaseMigrationFileGenerator(setup.getDirectory().toPath(), fileParser, setup.getGeneratedFile().toPath());
+		}
+		else {
+			Database db = new ConfiguredDatabase(config);
+			migrator = new ConfiguredDatabaseMigrator(setup.getDirectory().toPath(), fileParser, db);
+		}
 		
 		try {
 			if(!setup.versionSpecified()) {
