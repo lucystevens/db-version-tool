@@ -47,7 +47,7 @@ task fulljar(type: Jar) {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-    baseName("DBVersionTool.jar")
+    archiveName("DBVersionTool.jar")
     with jar
 }
 

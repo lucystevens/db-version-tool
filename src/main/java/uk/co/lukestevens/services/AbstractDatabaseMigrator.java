@@ -10,6 +10,16 @@ import uk.co.lukestevens.interfaces.DatabaseMigrator;
 import uk.co.lukestevens.interfaces.FileParser;
 
 public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
+
+	// TODO make configurable
+	final String schemaName="core";
+	final String tableName ="version";
+	final String columnName="version";
+
+	final String setupDbSql="CREATE SCHEMA IF NOT EXISTS " + schemaName +";" +
+			"CREATE TABLE IF NOT EXISTS " + schemaName + "." + tableName + "(" + columnName + " INT PRIMARY KEY);" +
+			"INSERT INTO " + schemaName + "." + tableName + "(" + columnName  + ") SELECT 0 WHERE NOT EXISTS (SELECT * FROM " + schemaName + "." + tableName + ");";
+	final String getVersionSql="SELECT " + columnName + " FROM " + schemaName + "." + tableName + ";";
 	
 	final Path path;
 	final FileParser<DatabaseSchemaChange> parser;
