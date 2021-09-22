@@ -1,5 +1,4 @@
-# Release 2.0.0
- - Update db-version-tool to use v2 libraries
- - Create automated release pipeline
- - Convert to gradle
+# Release 2.1.0
+ - Add unit tests for sql file generator
+ - Fix sql file generator to create version table if it doesn't exist
  
