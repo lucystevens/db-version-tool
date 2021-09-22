@@ -1,0 +1,1 @@
+CREATE TABLE test(col varchar);CREATE SCHEMA IF NOT EXISTS core;CREATE TABLE IF NOT EXISTS core.version(version INT PRIMARY KEY);INSERT INTO core.version(version) SELECT 0 WHERE NOT EXISTS (SELECT * FROM core.version);UPDATE core.version SET version=53;
